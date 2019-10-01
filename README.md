@@ -6,6 +6,28 @@ but with better SSH support than the Microsoft-provided boxes. Boxes deriving
 from this one can provide truly headless control of a full-featured Windows VM
 of known provenance from a host running Linux or macOS.
 
+# 🚨🚨🚨 NOTE NOTE NOTE 🚨🚨🚨
+
+The latest versions of the Microsoft VMs, “1809” and later, use [WinRM] rather
+than an old OpenSSH in their default configuration, and newer versions of
+Vagrant seem to have better support for WinRM. **The upshot is that this
+framework doesn’t work with the latest VM images, and it isn’t clear that it
+would be worthwhile to make it work again.** I’m preserving the code for
+posterity but you should probably just configure your boxes to use WinRM directly:
+
+```
+config.vm.guest = :windows
+config.vm.boot_timeout = 1200
+config.vm.graceful_halt_timeout = 1200
+config.vm.communicator = 'winrm'
+config.winrm.username = "IEUser"
+config.winrm.password = "Passw0rd!"
+```
+
+[WinRM]: https://docs.microsoft.com/en-us/windows/win32/winrm/portal
+
+# END NOTE
+
 The context is that Microsoft
 [provides free Windows VMs](https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/)
 that should be great for automatic software building. However, these VMs are
@@ -108,10 +130,9 @@ Ruled-out options are:
 - `vagrant rdp` can work, but uses interactive graphics
 - `vagrant powershell` refuses to work unless the *host* OS is Windows as
   well.
-- There’s also WinRM. This is disabled on the stock Microsoft boxes and was
-  much harder to enable than I realized. Vagrant can do *some* operations via
-  WinRM, but fundamentally it also doesn’t let you interact with the box
-  through a terminal.
+- There’s also WinRM. **This used to be disabled on the modern.ie VM images,
+  and was extremely hard to enable, but now it is provided out of the box,
+  which basically obviates the design of this repository.**
 
 In the VM images I tried, the interactive SSH shell is *incredibly* limited.
 First, it doesn’t provide an actual (pseudo)TTY interface (i.e., `tty` prints
